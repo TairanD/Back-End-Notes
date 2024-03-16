@@ -1,0 +1,1 @@
+This repo contains my notes, thoughts, and learning processes in the field of back end.
