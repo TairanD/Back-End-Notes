@@ -10,7 +10,9 @@ const fn = async () => {
     return 10
 }
 // it is equal to the following code, but in a more concise way
-const fn = () => {return Promise.resolve(10)}
+const fn = () => {
+    return Promise.resolve(10)
+}
 ```
 
 ## 2 - await
@@ -33,3 +35,48 @@ This design can prevent `await` from congestion.
 
 At this time, some will argue `await` still impact the internal node. Yet, usually, code after `await` relies on the result
 of `await` function.
+
+## 4 - Error Process
+When we use async-await, we find we cannot use `finally` to deal with errors. Therefore, we need to use try-catch to do it.
+
+```javascript
+const fetchData = async () => {
+    try{
+        const response = await fetch('/')
+        // further process response
+    }catch (error){
+        console.error("Error:", error)
+    }
+}
+```
+
+## *Note
+- What happen if the code inside an async declared function is synchronous?
+   - The code will be executed synchronously
+- When we add `await` before a piece of synchronous code:
+  - the code behead the `await` code inside the current `async` function will be added to the micro task stack
+  - For example, the following code will output 1243
+    ```javascript
+    async function fn(){
+        console.log(1)
+        await console.log(2)
+        // all code below will be added to the micro task stack
+        console.log(3)
+    }
+    
+    fn()
+    console.log(4)
+    ```
+    and it is equal to the following code, the output is still 1243
+    ```javascript
+    async function fn(){
+        return new Promise(function (resolve) { 
+            console.log(1)
+            console.log(2)
+            resolve()
+        }).then(r => console.log(3))
+    }
+    
+    fn()
+    console.log(4)
+    ```
